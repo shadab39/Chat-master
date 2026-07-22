@@ -10,6 +10,7 @@ import { app, server } from "./SocketIO/server.js";
 
 dotenv.config();
 
+// Middlewares
 app.use(express.json());
 app.use(cookieParser());
 
@@ -17,23 +18,29 @@ app.use(
   cors({
     origin: [
       "http://localhost:3001",
-      "https://YOUR-VERCEL-PROJECT.vercel.app",
+      "https://chat-master-iota.vercel.app",
     ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
 
+// Routes
+app.use("/api/user", userRoute);
+app.use("/api/message", messageRoute);
+
+// MongoDB Connection
 const PORT = process.env.PORT || 3000;
 const URI = process.env.MONGODB_URI;
 
 mongoose
   .connect(URI)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.log(err));
-
-app.use("/api/user", userRoute);
-app.use("/api/message", messageRoute);
-
-server.listen(PORT, () => {
-  console.log(`Server is Running on port ${PORT}`);
-});
+  .then(() => {
+    console.log("Connected to MongoDB");
+    server.listen(PORT, () => {
+      console.log(`Server is Running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log("MongoDB Error:", err);
+  });
