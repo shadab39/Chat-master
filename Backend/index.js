@@ -10,22 +10,27 @@ import { app, server } from "./SocketIO/server.js";
 
 dotenv.config();
 
-// middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3001",
+      "https://YOUR-VERCEL-PROJECT.vercel.app",
+    ],
+    credentials: true,
+  })
+);
 
 const PORT = process.env.PORT || 3000;
 const URI = process.env.MONGODB_URI;
 
-try {
-  mongoose.connect(URI);
-  console.log("Connected to MongoDB");
-} catch (error) {
-  console.log(error);
-}
+mongoose
+  .connect(URI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.log(err));
 
-//routes
 app.use("/api/user", userRoute);
 app.use("/api/message", messageRoute);
 
