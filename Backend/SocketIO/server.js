@@ -10,38 +10,35 @@ const io = new Server(server, {
   cors: {
     origin: [
       "http://localhost:3001",
+      "https://chat-master-l2pa2jls3-shadab39s-projects.vercel.app",
       "https://chat-master-iota.vercel.app",
-      "https://chat-master-git-main-shadab39s-projects.vercel.app",
     ],
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
-// realtime message code goes here
 export const getReceiverSocketId = (receiverId) => {
-  return users[receiverId];
+  return userSocketMap[receiverId];
 };
 
-const users = {};
+const userSocketMap = {};
 
-// used to listen events on server side.
 io.on("connection", (socket) => {
-  console.log("a user connected", socket.id);
+  console.log("A user connected", socket.id);
 
   const userId = socket.handshake.query.userId;
 
   if (userId) {
-    users[userId] = socket.id;
-    console.log("Hello", users);
+    userSocketMap[userId] = socket.id;
   }
 
-  io.emit("getOnlineUsers", Object.keys(users));
+  io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("disconnect", () => {
-    console.log("a user disconnected", socket.id);
-    delete users[userId];
-    io.emit("getOnlineUsers", Object.keys(users));
+    console.log("User disconnected", socket.id);
+    delete userSocketMap[userId];
+    io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
 
